@@ -25,9 +25,9 @@ class DbController extends AbstractController
 
         // Si no hay mensaje en la BD, devolver un mensaje de error
         if (!$result) {
-            return $this->json(['message' => 'No messages found in the database!']);
+            return $this->json(['message' => 'Backend Operativo, pero la BD no responde!']);
         }
-
+        $result = 'Backend Operativo, respuesta de la BD: ' . $result;
         return $this->json(['message' => $result]);
     }
 }
