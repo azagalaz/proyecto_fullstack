@@ -6,13 +6,12 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./frontend:/app:delegated
-      - /app/node_modules # Evita sobreescribir node_modules del contenedor
+      - ./frontend:/app
+      - /app/node_modules
     environment:
-      CHOKIDAR_USEPOLLING: "true" # Activa polling para asegurar detección de cambios en Docker
+    - CHOKIDAR_USEPOLLING=true # Activa polling para asegurar detección de cambios en Docker
     depends_on:
       - backend
-    restart: unless-stopped
     networks:
       - app-network
 
@@ -23,24 +22,29 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./backend:/app:delegated
+      - ./backend:/app
     depends_on:
       - database
-    command: ["sh", "-c", "composer install && composer show doctrine/dbal && php -S 0.0.0.0:8000 -t public"]
-    restart: unless-stopped
+    command: >
+      sh -c "
+      composer install &&
+      composer show doctrine/dbal &&
+      php -S 0.0.0.0:8000 -t public"
     networks:
       - app-network
 
   database:
     image: mysql:8.0
-    #ports:
-      #- "3306:3306" #no necesario en producción
-    env_file:
-      - ./database/.env
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: myapp
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
     volumes:
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
       - database_data:/var/lib/mysql
-    restart: unless-stopped #always en producción
     networks:
       - app-network
 
@@ -50,11 +54,10 @@ services:
       - "8080:80"
     environment:
       PMA_HOST: database
-    env_file:
-      - ./database/.env # Usa el mismo archivo de configuración
+      PMA_USER: user
+      PMA_PASSWORD: password
     depends_on:
       - database
-    restart: unless-stopped
     networks:
       - app-network
   web:
@@ -67,9 +70,8 @@ services:
     volumes:
       - ./web/certs:/etc/nginx/certs
     depends_on:
-      - frontend        
+      - frontend
       - backend
-    restart: unless-stopped
     networks:
       - app-network
 
