@@ -3,8 +3,8 @@ services:
     build:
       context: ./frontend
       dockerfile: DockerfileFrontend
-    ports:
-      - "3000:3000"
+    #ports:
+    #  - "3000:3000"
     volumes:
       - ./frontend:/app:delegated
       - /app/node_modules # Evita sobreescribir node_modules del contenedor
@@ -20,8 +20,8 @@ services:
     build:
       context: ./backend
       dockerfile: DockerfileBackend
-    ports:
-      - "8000:8000"
+    #ports:
+    #  - "8000:8000"
     volumes:
       - ./backend:/app:delegated
     depends_on:
@@ -36,7 +36,7 @@ services:
     #ports:
       #- "3306:3306" #no necesario en producción
     env_file:
-      - ./database/.env
+      - .env
     volumes:
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
       - database_data:/var/lib/mysql
@@ -46,12 +46,12 @@ services:
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
-    ports:
-      - "8080:80"
-    environment:
-      PMA_HOST: database
+    #ports:
+    #  - "8080:80"
     env_file:
-      - ./database/.env # Usa el mismo archivo de configuración
+      - .env  # Usa el mismo archivo de entorno
+    environment:
+      PMA_HOST: database  
     depends_on:
       - database
     restart: unless-stopped
